@@ -16,13 +16,38 @@
 function islandora_object_lock_handle_possible_lock_notice(AbstractObject $object) {
   global $user;
 
+  // Notify user that object is locked and they cannot manage it.
   if (islandora_object_lock_is_locked($object) &&
       $user->name != islandora_object_lock_get_lock_username($object) &&
       islandora_object_lock_request_unlock_access()) {
 
+    $locked_by = user_load_by_name(islandora_object_lock_get_lock_username($object));
+    if (module_exists('realname')) {
+      $name = realname_load($locked_by);
+    } else {
+      $name = $locked_by->name;
+    }
+
     drupal_set_message(
-      t("The object can't be edited as it is being modified by someone else. You may !print_link.",
-        array('!print_link' => l(t('request that they unlock the object'), "islandora/object/{$object->id}/request_unlock"))
+      t("This object is <strong>locked by <a href=\"!user_url\">@user_name</a></strong>, so it cannot be managed. You may <strong><a href=\"!request_unlock_url\">request that they unlock the object</a></strong>.",
+        array(
+          '!user_url' => url("user/{$locked_by->uid}"),
+          '@user_name' => realname_load($locked_by),
+          '!request_unlock_url' => url("islandora/object/{$object->id}/request_unlock"),
+        )
+      ),
+      'warning'
+    );
+
+  // Notify user that they own the lock and can remove it.
+  } else if (islandora_object_lock_is_locked($object) &&
+      $user->name == islandora_object_lock_get_lock_username($object)) {
+
+    drupal_set_message(
+      t("This object is <strong>locked by you</strong>, others cannot make changes to it. You may <strong><a href=\"!unlock_url\">remove the lock from this object</a></strong>.",
+        array(
+          '!unlock_url' => url("islandora/object/{$object->id}/manage/datastreams/locking/unlock"),
+        )
       ),
       'warning'
     );
