@@ -24,6 +24,9 @@ function islandora_object_lock_handle_possible_lock_notice(AbstractObject $objec
     $locked_by = user_load_by_name(islandora_object_lock_get_lock_username($object));
     if (module_exists('realname')) {
       $name = realname_load($locked_by);
+      if (empty($name)) {
+        $name = $locked_by->name;
+      }
     } else {
       $name = $locked_by->name;
     }
@@ -32,7 +35,7 @@ function islandora_object_lock_handle_possible_lock_notice(AbstractObject $objec
       t("This object is <strong>locked by <a href=\"!user_url\">@user_name</a></strong>, so it cannot be managed. You may <strong><a href=\"!request_unlock_url\">request that they unlock the object</a></strong>.",
         array(
           '!user_url' => url("user/{$locked_by->uid}"),
-          '@user_name' => realname_load($locked_by),
+          '@user_name' => $name,
           '!request_unlock_url' => url("islandora/object/{$object->id}/request_unlock"),
         )
       ),
