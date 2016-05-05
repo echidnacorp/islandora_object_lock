@@ -98,13 +98,7 @@ function islandora_object_lock_acquire_during_alter(&$form, &$form_state, Abstra
     // Object is locked...
     if (islandora_object_lock_user_has_lock($object)) {
       // ... and you have it! Jolly good!
-      drupal_set_message(t('You have the lock on this object, which you can <a href="@release_url">release</a>.', array(
-        '@release_url' => url("islandora/object/{$object->id}/manage/datastreams/locking/unlock", array(
-          'query' => array(
-            'destination' => $allow_acquisition ? "islandora/object/{$object->id}/manage/datastreams" : "islandora/object/{$object->id}/$path_suffix",
-          ),
-        )),
-      )), 'status', FALSE);
+      drupal_set_message(islandora_object_lock_get_locked_message($object), 'status', FALSE);
     }
     else {
       // ... but somebody else has it ...
