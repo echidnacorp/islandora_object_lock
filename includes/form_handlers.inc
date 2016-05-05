@@ -11,6 +11,8 @@
  * message output.
  */
 function islandora_object_lock_check_lock_validation_handler(&$form, &$form_state) {
+  form_load_include($form_state, 'inc', 'islandora_object_lock', 'includes/utilities');
+
   $info = $form_state['islandora_object_lock_info'];
   $object = islandora_object_load($info['pid']);
 
@@ -24,16 +26,7 @@ function islandora_object_lock_check_lock_validation_handler(&$form, &$form_stat
 
   if (!$owned) {
     if ($locked) {
-      $message = t('This object has been locked by another user.');
-      if (islandora_object_lock_request_unlock_access()) {
-        $message .= ' ' . t('You can request that they <a href="@release_url">release</a> the lock.', array(
-          '@release_url' => url("islandora/object/{$object->id}/request_unlock", array(
-            'query' => array(
-              'destination' => $manage_page,
-            ),
-          )),
-        ));
-      }
+      $message = islandora_object_lock_get_locked_message($object);
     }
     elseif ($path_suffix !== NULL && $allow_acquisition) {
       $message = t('Your lock has expired due to inactivity. To re-lock this object, please <a href="@edit_url">try again</a>. Any changes since your last save will be lost.', array(
@@ -105,28 +98,14 @@ function islandora_object_lock_acquire_during_alter(&$form, &$form_state, Abstra
     // Object is locked...
     if (islandora_object_lock_user_has_lock($object)) {
       // ... and you have it! Jolly good!
-      drupal_set_message(t('You have the lock on this object, which you can <a href="@release_url">release</a>.', array(
-        '@release_url' => url("islandora/object/{$object->id}/manage/datastreams/locking/unlock", array(
-          'query' => array(
-            'destination' => $allow_acquisition ? "islandora/object/{$object->id}/manage/datastreams" : "islandora/object/{$object->id}/$path_suffix",
-          ),
-        )),
-      )), 'status', FALSE);
+      drupal_set_message(islandora_object_lock_get_locked_message($object), 'status', FALSE);
     }
     else {
       // ... but somebody else has it ...
       $redirect_url = is_null($redirect) ? "islandora/object/$object->id/manage" : $redirect;
-      $message = t('This object has been locked by another user.');
-      if (islandora_object_lock_request_unlock_access()) {
-        // ... but you can ask them to release it.
-        $message .= ' ' . t('You can request that they <a href="@release_url">release</a> the lock.', array(
-          '@release_url' => url("islandora/object/{$object->id}/request_unlock", array(
-            'query' => array(
-              'destination' => $redirect_url,
-            ),
-          )),
-        ));
-      }
+
+      $message = islandora_object_lock_get_locked_message($object);
+
       drupal_set_message(filter_xss($message), 'error');
       drupal_goto($redirect_url);
     }
