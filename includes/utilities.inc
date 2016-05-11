@@ -42,7 +42,7 @@ function islandora_object_lock_get_locked_message(AbstractObject $object) {
 
   } else {
     $locked_by = user_load_by_name(islandora_object_lock_get_lock_username($object));
-    if (module_exists('realname')) {
+    if (module_exists('realname') && isset($locked_by->uid)) {
       $name = realname_load($locked_by);
       if (empty($name)) {
         $name = $locked_by->name;
