@@ -34,7 +34,7 @@ function islandora_object_lock_get_locked_message(AbstractObject $object) {
 
   if ($user->name == islandora_object_lock_get_lock_username($object)) {
 
-    return t("This object is <strong>locked by you</strong>, others cannot make changes to it. You may <strong><a href=\"!unlock_url\">remove the lock from this object</a></strong>.",
+    return t("This object is <strong>locked by you</strong>, so others cannot change it. You may <strong><a href=\"!unlock_url\">remove the lock from this object</a></strong>.",
       array(
         '!unlock_url' => url("islandora/object/{$object->id}/manage/datastreams/locking/unlock"),
       )
