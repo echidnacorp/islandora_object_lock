@@ -15,6 +15,7 @@ function islandora_object_lock_length_schema() {
         'type' => 'varchar',
         'length' => 255,
         'description' => 'The PID for the collection lock.',
+        'not null' => TRUE,
       ),
       'duration' => array(
         'type' => 'varchar',
