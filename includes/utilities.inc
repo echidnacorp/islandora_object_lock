@@ -13,7 +13,7 @@
  */
 function islandora_object_lock_handle_possible_lock_notice(AbstractObject $object) {
   // Notify user that object is locked
-  if (islandora_object_lock_is_locked($object)) {
+  if (islandora_object_lock_is_locked($object) && user_is_logged_in()) {
     drupal_set_message(islandora_object_lock_get_locked_message($object), 'warning');
   }
 }
