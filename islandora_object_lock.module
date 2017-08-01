@@ -35,18 +35,16 @@ function islandora_object_lock_menu() {
   );
   $items['islandora/object/%islandora_object/manage/datastreams/locking/lock'] = array(
     'title' => 'Lock object',
-    'file' => 'includes/lock.form.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_object_lock_form_lock', 2, 'lock'),
+    'page callback' => 'islandora_object_lock_instant_lock',
+    'page arguments' => array(2, 'lock'),
     'type' => MENU_LOCAL_ACTION,
     'access callback' => 'islandora_object_lock_access_lock',
     'access arguments' => array(2, 'lock'),
   );
   $items['islandora/object/%islandora_object/manage/datastreams/locking/unlock'] = array(
     'title' => 'Remove object lock',
-    'file' => 'includes/lock.form.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_object_lock_form_lock', 2, 'unlock'),
+    'page callback' => 'islandora_object_lock_instant_lock',
+    'page arguments' => array(2, 'unlock'),
     'type' => MENU_LOCAL_ACTION,
     'access callback' => 'islandora_object_lock_access_lock',
     'access arguments' => array(2, 'unlock'),
@@ -484,4 +482,27 @@ function islandora_object_lock_islandora_object_lock_ignored_datastream_modifica
     'RELS-EXT',
     'POLICY',
   );
+}
+
+/**
+ * Instantly lock/unlock an object without prompting for confirmation.
+ *
+ * @param AbstractFedoraObject $object
+ *   The Fedora object to lock/unlock.
+ * @param string $op
+ *   The operation, may be: lock, unlock.
+ *
+ * @return mixed
+ *   Drupal redirect response.
+ */
+function islandora_object_lock_instant_lock(AbstractFedoraObject $object, $op) {
+  $pid = $object->id;
+  if ($op == 'lock') {
+    islandora_object_lock_set_object_lock($pid);
+    drupal_set_message(t('The object has been locked.'));
+  } else {
+    islandora_object_lock_remove_object_lock($pid);
+    drupal_set_message(t('The object lock has been removed.'));
+  }
+  return drupal_goto("islandora/object/$pid/manage/datastreams");
 }
