@@ -18,6 +18,13 @@ function islandora_object_lock_rest_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
+ $items['islandora/rest/v1/objectlockstatus/%'] = array(
+    'page callback' => 'islandora_object_lock_rest_callback',
+    'page arguments' => array(4),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -28,6 +35,7 @@ function islandora_object_lock_rest_menu() {
  *   The object's PID.
  */
 function islandora_object_lock_rest_callback($pid) {
+
   module_load_include('inc', 'islandora_rest', 'includes/utilities');
   $method = islandora_rest_get_request_method();
 
