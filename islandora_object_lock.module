@@ -195,6 +195,9 @@ function islandora_object_lock_remove_object_lock($pid) {
   $original_user = $GLOBALS['user'];
   $GLOBALS['user'] = user_load(1);
 
+  // Load islandora object lock utilities.
+  module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
+
   $object = islandora_object_load($pid);
   if (islandora_object_lock_is_locked($object)) {
     $locking_user = islandora_object_lock_get_lock_username($object);
@@ -222,8 +225,9 @@ function islandora_object_lock_remove_object_lock($pid) {
     $object->relationships->remove(ISLANDORA_RELS_EXT_URI, ISLANDORA_OBJECT_LOCK_USER_PRED);
     $object->relationships->commitRelationships();
 
-    $GLOBALS['user'] = $original_user;
   }
+
+  $GLOBALS['user'] = $original_user;
   drupal_save_session(TRUE);
 }
 
