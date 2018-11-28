@@ -149,7 +149,9 @@ function islandora_object_lock_is_locked(AbstractObject $object) {
     $expiry_time = $lock[0]['object']['value'];
     if ($expiry_time != 'indefinite') {
       if (strtotime($expiry_time) < time()) {
-        islandora_object_lock_remove_object_lock($object->id);
+        // @TODO this recursive function call may cause a fatal error "PHP Fatal
+        // error: Maximum function nesting level of '100' reached, aborting!"
+        // islandora_object_lock_remove_object_lock($object->id);
         return FALSE;
       }
       else {
